@@ -1,0 +1,7 @@
+{
+  "name": "edexme",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
