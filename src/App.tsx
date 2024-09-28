@@ -18,6 +18,7 @@ import Tab4 from './pages/Tab4';
 import UpdateDetails from './pages/updateDetails/UpdateDetails';
 import UpdatePWD from './pages/changePwd/ChangePwd';
 import CreateAccount from './pages/creactAccount/CreactAccount';
+import ForgetPassword from './pages/forgetPassword/ForgetPassword';
 
 
 
@@ -82,6 +83,9 @@ const App: React.FC = () => (
           </Route>
           <Route path='/createAccount'>
             <CreateAccount />
+          </Route>
+          <Route path='/forgotPassword'>
+            <ForgetPassword />
           </Route>
         </IonRouterOutlet>
         <IonTabBar slot="bottom">

@@ -40,8 +40,11 @@ const Tab1: React.FC = () => {
   const [peer, setPeer] = useState<Peer | null>(null);
 
   // websocket recived msg ; requested show button;
-  const [isRequested, setIsRequested] = useState<Boolean>(false);
-  const [isRequesting, setIsRequesting] = useState<Boolean>(false);
+  const [isRequested, setIsRequested] = useState<boolean>(false);
+  const [isRequesting, setIsRequesting] = useState<boolean>(false);
+
+  //video on off
+  const [isVideoOn, setIsVideoOn] = useState<boolean>(true);
 
   const refresh = () =>{
     window.location.reload();
@@ -49,20 +52,12 @@ const Tab1: React.FC = () => {
 
   
 
-  const getMediaAccess = async (): Promise<MediaStream | null> => {
+  const getLocalStream = async () => {
     try {
-      // Request access to the camera and microphone
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: true,    // Request access to the camera
-        audio: true     // Request access to the microphone
-      });
-  
-      console.log('Access granted to media devices:', mediaStream);
-      return mediaStream;
+      return await navigator.mediaDevices.getUserMedia({ video: isVideoOn, audio: true });
     } catch (error) {
-      console.error('Error accessing media devices:', error);
-      alert('Please allow access to camera and microphone.');
-      return null;
+      console.error('Error accessing media devices.', error);
+      alert('Could not access your camera and microphone. Please allow access.');
     }
   };
 
@@ -188,16 +183,20 @@ const Tab1: React.FC = () => {
       peer.on('call', async (call) => {
         console.log('Incoming call...');
   
-        // Answer the call with the local stream
-        const localStream = await getMediaAccess();
+        // Get the local stream with the current video status
+        const localStream = await getLocalStream()
+  
         if (localStream) {
           call.answer(localStream);
+
+          if (localVideoRef.current) {
+            localVideoRef.current.srcObject = localStream;
+          }
   
           // When receiving the remote stream, display it in the remote video element
           call.on('stream', (remoteStream) => {
             if (remoteVideoRef.current) {
               remoteVideoRef.current.srcObject = remoteStream;
-              remoteVideoRef.current.play(); // Ensure remote video plays
             }
           });
         }
@@ -215,13 +214,11 @@ const Tab1: React.FC = () => {
     console.log('Calling ' + remotePeerId + '...');
   
     // Get the local stream
-    const localStream = await getMediaAccess();
+    const localStream = await getLocalStream()
     if (localStream && peer) {
       // Display the local stream in the local video element
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = localStream;
-        localVideoRef.current.muted = true; // Ensure local video is muted
-        localVideoRef.current.play(); // Ensure local video plays
       }
   
       // Make the call to the remote peer
@@ -231,7 +228,6 @@ const Tab1: React.FC = () => {
       call.on('stream', (remoteStream) => {
         if (remoteVideoRef.current) {
           remoteVideoRef.current.srcObject = remoteStream;
-          remoteVideoRef.current.play(); // Ensure remote video plays
         }
       });
   
@@ -240,6 +236,8 @@ const Tab1: React.FC = () => {
       });
     }
   };
+
+  
 
   // Set up the WebSocket connection and send a message on component mount
   useEffect(() => {
@@ -348,9 +346,9 @@ const Tab1: React.FC = () => {
 
         <IonCardContent>All users are in the conference or another reason.</IonCardContent>
 
-        <IonButton fill="outline" className='button' color='warning' onClick={sendMsg}>
+        <IonButton fill="outline" className='button' color='warning' onClick={disconnect}>
         <IonIcon slot='start' icon={personAddOutline} > </IonIcon>
-        Find User
+        Disconnect
         </IonButton>
         
       </IonCard>
