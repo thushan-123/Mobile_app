@@ -44,7 +44,7 @@ const Tab1: React.FC = () => {
   const [isRequesting, setIsRequesting] = useState<boolean>(false);
 
   //video on off
-  const [isVideoOn, setIsVideoOn] = useState<boolean>(true);
+  const [isVideoOn, setIsVideoOn] = useState<boolean>(false);
   const [isAudioOn, setIsAudioOn] = useState<boolean>(true);
 
   const refresh = () =>{
@@ -71,28 +71,11 @@ const Tab1: React.FC = () => {
       }
   };
 
-  const audioClick = async () => {
-      
-      setIsAudioOn((prevState) => !prevState);
-    
-      // Stop the current local stream
-      if (localVideoRef.current && localVideoRef.current.srcObject) {
-        const tracks = (localVideoRef.current.srcObject as MediaStream).getTracks();
-        tracks.forEach((track) => track.stop());
-      }
-    
-      // Get a new stream
-      const updatedStream = await getLocalStream();
-    
-      // Update the video element 
-      if (updatedStream && localVideoRef.current) {
-        localVideoRef.current.srcObject = updatedStream;
-      }
-  };
+ 
 
   const getLocalStream = async () => {
     try {
-      return await navigator.mediaDevices.getUserMedia({ video: isVideoOn, audio: isAudioOn });
+      return await navigator.mediaDevices.getUserMedia({ video: isVideoOn, audio: true });
     } catch (error) {
       console.error('Error accessing media devices.', error);
       alert('Could not access your camera and microphone. Please allow access.');
