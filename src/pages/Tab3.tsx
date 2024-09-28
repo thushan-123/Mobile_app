@@ -47,7 +47,7 @@ const Tab3: React.FC = () => {
     }
    }  
    getusername();
-    },[])
+    },[store])
   
 
   return (

@@ -45,7 +45,8 @@ const Tab1: React.FC = () => {
 
   //video on off
   const [isVideoOn, setIsVideoOn] = useState<boolean>(false);
-  const [isAudioOn, setIsAudioOn] = useState<boolean>(true);
+
+  
 
   const refresh = () =>{
     window.location.reload();
@@ -56,20 +57,28 @@ const Tab1: React.FC = () => {
       
       setIsVideoOn((prevState) => !prevState);
     
-      // Stop the current local stream
+  };
+
+  useEffect(() => {
+    const updateAudioStream = async () => {
+      // Stop current audio tracks
       if (localVideoRef.current && localVideoRef.current.srcObject) {
-        const tracks = (localVideoRef.current.srcObject as MediaStream).getTracks();
-        tracks.forEach((track) => track.stop());
+        const audioTracks = (localVideoRef.current.srcObject as MediaStream).getAudioTracks();
+        audioTracks.forEach((track) => track.stop()); // Stop audio tracks
       }
-    
-      
+  
+      // Get a new stream with the updated audio state (video remains as it is)
       const updatedStream = await getLocalStream();
-    
-      // Update the video element  new stream
+  
+      // Apply the new stream to the local video element
       if (updatedStream && localVideoRef.current) {
         localVideoRef.current.srcObject = updatedStream;
       }
-  };
+    };
+  
+    // Only update the audio stream if there's a change in isAudioOn
+    updateAudioStream();
+  }, [isVideoOn]);
 
  
 
@@ -277,6 +286,7 @@ const Tab1: React.FC = () => {
     return () => {
       if (socket) {
         socket.close();
+        disconnect();
       }
     };
   }, [store]); // Empty dependency array to run only once when the component mounts
@@ -409,26 +419,18 @@ const Tab1: React.FC = () => {
           Your browser does not support the video tag.
         </video>
       </IonCardContent>
-      <div className='media-button'>
+      
       <IonButton color="medium"  onClick={videoClick}>
-        {isVideoOn && (
+        {!isVideoOn && (
           <IonIcon slot='start' icon={videocamOutline} > </IonIcon>
         )}
 
-        {!isVideoOn && (
+        {isVideoOn && (
           <IonIcon slot='start' icon={videocamOffOutline} > </IonIcon>
         )}
          Camera</IonButton>
-      <IonButton color="medium" onClick={audioClick}>
-        {isAudioOn && (
-          <IonIcon slot='start' icon={micOutline} > </IonIcon>
-        )}
-
-        {!isAudioOn && (
-          <IonIcon slot='start' icon={micOffOutline} > </IonIcon>
-        )}
-        Audio</IonButton>
-      </div>
+      
+      
 
       <IonButton fill="outline" className='button' color='danger' onClick={disconnect}>
       <IonIcon slot='start' icon={call} > </IonIcon>
