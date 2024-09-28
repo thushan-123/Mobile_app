@@ -12,7 +12,7 @@ import ServerImg from './components/ServerImg';
 import { useStorage } from '../storage/useStorage';
 import { useState, useEffect,useRef } from 'react';
 import Peer from 'peerjs';
-import { call, caretForwardCircle, peopleOutline, personAddOutline } from 'ionicons/icons';
+import { call, caretForwardCircle, exitOutline, micOffOutline, micOutline, peopleOutline, personAddOutline, videocamOffOutline, videocamOutline } from 'ionicons/icons';
 import {requestPermissions} from '../services/permissions';
 import 'webrtc-adapter';
 
@@ -45,16 +45,54 @@ const Tab1: React.FC = () => {
 
   //video on off
   const [isVideoOn, setIsVideoOn] = useState<boolean>(true);
+  const [isAudioOn, setIsAudioOn] = useState<boolean>(true);
 
   const refresh = () =>{
     window.location.reload();
   }
 
-  
+
+  const videoClick = async () => {
+      
+      setIsVideoOn((prevState) => !prevState);
+    
+      // Stop the current local stream
+      if (localVideoRef.current && localVideoRef.current.srcObject) {
+        const tracks = (localVideoRef.current.srcObject as MediaStream).getTracks();
+        tracks.forEach((track) => track.stop());
+      }
+    
+      
+      const updatedStream = await getLocalStream();
+    
+      // Update the video element  new stream
+      if (updatedStream && localVideoRef.current) {
+        localVideoRef.current.srcObject = updatedStream;
+      }
+  };
+
+  const audioClick = async () => {
+      
+      setIsAudioOn((prevState) => !prevState);
+    
+      // Stop the current local stream
+      if (localVideoRef.current && localVideoRef.current.srcObject) {
+        const tracks = (localVideoRef.current.srcObject as MediaStream).getTracks();
+        tracks.forEach((track) => track.stop());
+      }
+    
+      // Get a new stream
+      const updatedStream = await getLocalStream();
+    
+      // Update the video element 
+      if (updatedStream && localVideoRef.current) {
+        localVideoRef.current.srcObject = updatedStream;
+      }
+  };
 
   const getLocalStream = async () => {
     try {
-      return await navigator.mediaDevices.getUserMedia({ video: isVideoOn, audio: true });
+      return await navigator.mediaDevices.getUserMedia({ video: isVideoOn, audio: isAudioOn });
     } catch (error) {
       console.error('Error accessing media devices.', error);
       alert('Could not access your camera and microphone. Please allow access.');
@@ -164,6 +202,7 @@ const Tab1: React.FC = () => {
 
   const disconnect = (): void => {
     setShowConference(false);
+    setShowAlert(false);
     if (socket) {
       socket.close();
       console.log('WebSocket connection closed');
@@ -347,7 +386,7 @@ const Tab1: React.FC = () => {
         <IonCardContent>All users are in the conference or another reason.</IonCardContent>
 
         <IonButton fill="outline" className='button' color='warning' onClick={disconnect}>
-        <IonIcon slot='start' icon={personAddOutline} > </IonIcon>
+        <IonIcon slot='start' icon={exitOutline} > </IonIcon>
         Disconnect
         </IonButton>
         
@@ -387,6 +426,26 @@ const Tab1: React.FC = () => {
           Your browser does not support the video tag.
         </video>
       </IonCardContent>
+      <div className='media-button'>
+      <IonButton color="medium"  onClick={videoClick}>
+        {isVideoOn && (
+          <IonIcon slot='start' icon={videocamOutline} > </IonIcon>
+        )}
+
+        {!isVideoOn && (
+          <IonIcon slot='start' icon={videocamOffOutline} > </IonIcon>
+        )}
+         Camera</IonButton>
+      <IonButton color="medium" onClick={audioClick}>
+        {isAudioOn && (
+          <IonIcon slot='start' icon={micOutline} > </IonIcon>
+        )}
+
+        {!isAudioOn && (
+          <IonIcon slot='start' icon={micOffOutline} > </IonIcon>
+        )}
+        Audio</IonButton>
+      </div>
 
       <IonButton fill="outline" className='button' color='danger' onClick={disconnect}>
       <IonIcon slot='start' icon={call} > </IonIcon>

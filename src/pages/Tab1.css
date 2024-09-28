@@ -42,3 +42,16 @@
   padding-top: 10%;
   color: red;
 }
+
+.media-button{
+  display: flex;
+  
+}
+
+.video-btn{
+  width: 40%;
+}
+
+.mic-btn{
+  width: 40%;
+}

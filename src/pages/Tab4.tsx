@@ -94,6 +94,7 @@ const Tab4: React.FC = () => {
         </IonButton>
 
         <IonButton fill="outline" onClick={() => {history.push('/createAccount')}}>Register</IonButton>
+        <IonButton fill="clear" onClick={() =>{history.push('/forgotPassword')}}>Forgot Password</IonButton>
         <IonAlert
           isOpen={showAlert}
           onDidDismiss={() => setShowAlert(false)}

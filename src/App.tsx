@@ -52,11 +52,24 @@ import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import { useEffect } from 'react';
 
 setupIonicReact();
 
-const App: React.FC = () => (
-  <IonApp>
+const App: React.FC = () => {
+  useEffect(() => {
+    // Force light mode by removing 'dark' class
+    
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+  // If system dark mode is enabled, forcefully disable it
+  if (prefersDark.matches) {
+    document.body.classList.remove('dark');
+  }
+  }, []);
+  
+  return(
+    <IonApp>
     <IonReactRouter>
       <IonTabs>
         <IonRouterOutlet>
@@ -105,6 +118,9 @@ const App: React.FC = () => (
       </IonTabs>
     </IonReactRouter>
   </IonApp>
-);
+  )
+};
+  
+
 
 export default App;

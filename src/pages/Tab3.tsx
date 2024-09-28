@@ -47,7 +47,7 @@ const Tab3: React.FC = () => {
     }
    }  
    getusername();
-    },[store])
+    },[])
   
 
   return (
@@ -88,7 +88,7 @@ const Tab3: React.FC = () => {
         <IonIcon slot="start" icon={keyOutline}></IonIcon>
           Change Password
         </IonButton>
-        <IonButton className='button' expand="block" onClick={logOut}>Log Out</IonButton>
+        <IonButton className='button' expand="block" color='medium' onClick={logOut}>Log Out</IonButton>
         
         
       </IonContent>
