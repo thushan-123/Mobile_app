@@ -9,22 +9,31 @@ import LiveImg from '../images/play_12749751.gif';
 
 import ServerImg from './components/ServerImg';
 
-import { useStorage } from '../storage/useStorage';
+//import { useStorage } from '../storage/useStorage';
 import { useState, useEffect,useRef } from 'react';
 import Peer from 'peerjs';
 import { call, caretForwardCircle, exitOutline, micOffOutline, micOutline, peopleOutline, personAddOutline, videocamOffOutline, videocamOutline } from 'ionicons/icons';
 import {requestPermissions} from '../services/permissions';
 import 'webrtc-adapter';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import {Plugin, WebPlugin} from "@capacitor/core"
+
+
 
 
 
 const Tab1: React.FC = () => {
-  const { store, loadUserData } = useStorage();
+
+  //const { store, loadUserData } = useStorage();
   const [peerID, setPeerId] = useState<any | null>(null);
   const [remotePeerId, setRemotePeerId] = useState<any | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [socketMsg, setSocketMsg] = useState<JSON | null>(null);
+
+  const [refresher, setRefresher] = useState<boolean>(false);
+  
 
   // striming
   const localVideoRef = useRef<HTMLVideoElement>(null);
@@ -113,7 +122,7 @@ const Tab1: React.FC = () => {
   // Function to connect to WebSocket and listen to incoming messages
   const connectToNetwork = () => {
     if (username && peerID) {
-      const wsocket = new WebSocket(`ws://159.223.61.88/createConference/${username}/${peerID}`);
+      const wsocket = new WebSocket(`wss://testninja.info/createConference/${username}/${peerID}`);
 
       wsocket.onopen = () => {
         console.log('WebSocket connection opened');
@@ -230,6 +239,9 @@ const Tab1: React.FC = () => {
               remoteVideoRef.current.srcObject = remoteStream;
             }
           });
+          call.on('close',() => {
+            disconnect();
+          })
         }
       });
     }
@@ -263,6 +275,7 @@ const Tab1: React.FC = () => {
       });
   
       call.on('close', () => {
+        disconnect();
         console.log('Call ended.');
       });
     }
@@ -270,14 +283,19 @@ const Tab1: React.FC = () => {
 
   
 
+  
+
   // Set up the WebSocket connection and send a message on component mount
   useEffect(() => {
     const getusername = async() => {
+      /*
       if(store){
         const username = await loadUserData('user_name');
         setUsername(username);
-      }
+      }*/
+     setUsername(await AsyncStorage.getItem("user_name"))
      }  
+     
      getusername();
 
     connectPeerNetwork();
@@ -289,7 +307,7 @@ const Tab1: React.FC = () => {
         disconnect();
       }
     };
-  }, [store]); // Empty dependency array to run only once when the component mounts
+  }, []); // Empty dependency array to run only once when the component mounts
 
   useEffect(() => {
     if (peerID){

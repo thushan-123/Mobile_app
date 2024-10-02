@@ -23,6 +23,7 @@ import ForgetPassword from './pages/forgetPassword/ForgetPassword';
 
 
 
+
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 
@@ -69,7 +70,8 @@ const App: React.FC = () => {
   }, []);
   
   return(
-    <IonApp>
+    
+      <IonApp>
     <IonReactRouter>
       <IonTabs>
         <IonRouterOutlet>
@@ -118,6 +120,9 @@ const App: React.FC = () => {
       </IonTabs>
     </IonReactRouter>
   </IonApp>
+
+    
+    
   )
 };
   

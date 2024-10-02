@@ -7,11 +7,12 @@ import { IonContent, IonHeader, IonPage, IonTitle,
    IonCardSubtitle,
    IonCardTitle} from '@ionic/react';
 import ExploreContainer from '../components/ExploreContainer';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import './Tab3.css';
 import profilePic from '../images/teen_7088431.png'
 import detailPic from '../images/file_3934819.png'
-import { useStorage } from '../storage/useStorage';
+//import { useStorage } from '../storage/useStorage';
 import { cartOutline, keyOutline, pencilOutline } from 'ionicons/icons';
 
 const Tab3: React.FC = () => {
@@ -20,34 +21,38 @@ const Tab3: React.FC = () => {
   const [firstname, setFirstName] = useState<string>('')
   const [lastname, setLastName] = useState<string>('')
   const [email, setEmail] = useState<string>('')
-  const {store, loadUserData, saveUserData, clearAllData} = useStorage();
+  //const {store, loadUserData, saveUserData, clearAllData} = useStorage();
 
   const history: any = useHistory();
 
-  const logOut = () => {
+  const logOut = async () => {
+    /*
     if(store){
       clearAllData();
       history.push('/login');
-    }
+    }*/
+   await AsyncStorage.multiRemove(["user_name","token","l_name","email","token"]);
+   history.push('/login');
+   window.location.reload();
   }
 
 
   useEffect(()=>{
    const getusername = async() => {
-    if(store){
-      const username = await loadUserData('user_name');
-      const firstname = await loadUserData('f_name');
-      const lastname = await loadUserData('l_name');
-      const email = await loadUserData('email');
-      setFirstName(firstname);
-      setLastName(lastname);
-      setEmail(email);
-      setUsername(username);
+    
+      const username = await AsyncStorage.getItem("user_name"); //await loadUserData('user_name');
+      const firstname =await AsyncStorage.getItem("f_name"); //await loadUserData('f_name');
+      const lastname = await AsyncStorage.getItem("l_name");//loadUserData('l_name');
+      const email = await AsyncStorage.getItem("email"); //await loadUserData('email');
+      setFirstName(firstname!);
+      setLastName(lastname!);
+      setEmail(email!);
+      setUsername(username!);
       console.log(username,firstname,lastname,email);
-    }
+    
    }  
    getusername();
-    },[store])
+    },[])
   
 
   return (

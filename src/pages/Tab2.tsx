@@ -3,13 +3,14 @@ import { IonContent, IonHeader, IonPage, IonTitle,IonImg,IonLabel,IonButton,IonI
 import ExploreContainer from '../components/ExploreContainer';
 import {useEffect, useState} from 'react';
 import './Tab2.css';
-import { useStorage } from '../storage/useStorage';
+//import { useStorage } from '../storage/useStorage';
 import {todayTopics} from '../function/tpoics';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
 const Tab2: React.FC = () => {
-  const {store, loadUserData} = useStorage();
+  //const {store, loadUserData} = useStorage();
   const [topics, setTopic] = useState<Array<JSON>|null>(null);
 
   const [token, setToken] = useState<string>('');
@@ -17,15 +18,7 @@ const Tab2: React.FC = () => {
   
   useEffect(() => {
     const getTokenAndTopics = async () => {
-      if (store) {
-        const fetchedToken = await loadUserData('token');
-        if (fetchedToken) {
-          setToken(fetchedToken);
-          fetchTodayTopics(fetchedToken); // Call the function to get topics after token is set
-        } else {
-          console.error('No token found in storage');
-        }
-      }
+      const fetchToken = await AsyncStorage.getItem("token");
     };
 
     // Fetch today's topics with token
@@ -43,7 +36,7 @@ const Tab2: React.FC = () => {
     };
 
     getTokenAndTopics(); // Execute the function
-  }, [store]);
+  }, []);
     
   
      

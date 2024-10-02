@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonInput, IonItem, IonButton, IonAlert } from '@ionic/react';
 import { changePassword } from '../../function/user_login';
-import { useStorage } from '../../storage/useStorage';
+//import { useStorage } from '../../storage/useStorage';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
 const ChangePwd: React.FC = () => {
-  const { store, loadUserData } = useStorage(); // Destructure store
+  //const { store, loadUserData } = useStorage(); // Destructure store
 
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
@@ -54,12 +56,11 @@ const ChangePwd: React.FC = () => {
 
   useEffect(()=>{
     const getUserDetails = async() =>{
-        if (store){
-            setToken(await loadUserData('token'));
-        }
+        const tok = await AsyncStorage.getItem("token")
+        setToken(tok!)
     }
     getUserDetails();
-  },[store]);
+  },[]);
 
   return (
     <IonPage>

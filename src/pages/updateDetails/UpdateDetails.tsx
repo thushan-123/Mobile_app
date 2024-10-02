@@ -3,11 +3,12 @@ import { useHistory } from 'react-router-dom';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonInput, IonItem, IonButton, IonAlert } from '@ionic/react';
 import './Update.css';
 import { userLogin,updateDetails } from '../../function/user_login';
-import { useStorage } from '../../storage/useStorage';
+//import { useStorage } from '../../storage/useStorage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const UpdateDetails: React.FC = () => {
-  const { store, saveUserData, loadUserData } = useStorage(); // Destructure store
+  //const { store, saveUserData, loadUserData } = useStorage(); // Destructure store
   const [token, setToken] = useState<string>('')
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
@@ -32,7 +33,7 @@ const UpdateDetails: React.FC = () => {
         return;
     }
 
-    if (mobile.length === 9 || mobile.length ===10){
+    if (mobile.length < 8 || mobile.length > 11){
         setAlertMessage("Enter correct mobile number");
         setShowAlert(true);
         return;
@@ -41,25 +42,15 @@ const UpdateDetails: React.FC = () => {
     if (!validateEmail(email)){
         setAlertMessage("Enter valied email");
         setShowAlert(true);
+        return;
     }
 
     try {
       const res: any = await updateDetails(token,firstName,lastName,email,mobile);
       //console.log(res);
       if (res.status === true) {
-        if (store) { 
-          // Save user data
-          await saveUserData("token", res.token);
-          await saveUserData("f_name", firstName);
-          await saveUserData("l_name", lastName);
-          await saveUserData("email", email);
-          await saveUserData("mobile", mobile);
-
-          setAlertMessage("Update Success !") ;
-          setShowAlert(true); 
-        } else {
-          throw new Error("data save error");
-        }
+       setAlertMessage("update successfully");
+       setShowAlert(true);
       } else {
         setAlertMessage('Invalid username or password');
         setShowAlert(true);
@@ -75,16 +66,20 @@ const UpdateDetails: React.FC = () => {
 
   useEffect(()=> {
     const getUserDetails = async()=>{
-        if(store){
-            setFirstName(await loadUserData("f_name"));
-            setLastName(await loadUserData("l_name"));
-            setEmail(await loadUserData("email"));
-            setMobile(await loadUserData("mobile"));
-            setToken(await loadUserData("token"));
-        }
+            const fname = await AsyncStorage.getItem("f_name")
+            const lname = await AsyncStorage.getItem("l_name")
+            const email = await AsyncStorage.getItem("email")
+            const mobile = await AsyncStorage.getItem("mobile")
+            const token = await AsyncStorage.getItem("token")
+            setFirstName(fname!);
+            setLastName(lname!);
+            setEmail(email!);
+            setMobile(mobile!);
+            setToken(token!);
+        
     }
     getUserDetails();
-  },[store]);
+  },[]);
 
   return (
     <IonPage>

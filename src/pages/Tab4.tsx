@@ -4,6 +4,7 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonInput, IonItem
 import './Tab4.css';
 import { userLogin,updateDetails } from '../function/user_login';
 import { useStorage } from '../storage/useStorage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const Tab4: React.FC = () => {
@@ -22,12 +23,27 @@ const Tab4: React.FC = () => {
       return;
     }
 
+    const refresh = () =>{
+      window.location.reload();
+    }
+
     try {
       const res: any = await userLogin(username, password);
       
       if (res.status === 'success') {
+        await AsyncStorage.setItem("token", res.data.token);
+        await AsyncStorage.setItem("id", res.data.id);
+        await AsyncStorage.setItem("f_name", res.data.f_name);
+        await AsyncStorage.setItem("l_name", res.data.l_name);
+        await AsyncStorage.setItem("user_name", res.data.user_name);
+        await AsyncStorage.setItem("email", res.data.email);
+        await AsyncStorage.setItem("mobile", res.data.mobile);
+        history.push('/tab1');
+        window.location.reload();
+        /*
         if (store) { // Ensure store is initialized
           // Save user data
+          
           await saveUserData("token", res.data.token);
           await saveUserData("id", res.data.id);
           await saveUserData("f_name", res.data.f_name);
@@ -35,14 +51,13 @@ const Tab4: React.FC = () => {
           await saveUserData("user_name", res.data.user_name);
           await saveUserData("email", res.data.email);
           await saveUserData("mobile", res.data.mobile);
-
+          
           // Load data (optional)
           
-
           history.push('/tab1');
         } else {
           throw new Error("data save error");
-        }
+        } */
       } else {
         setAlertMessage('Invalid username or password');
         setShowAlert(true);

@@ -1,4 +1,4 @@
-const REACT_APP_API_URL: string= 'http://159.223.61.88/api/v1'
+const REACT_APP_API_URL: string= 'https://testninja.info/api/v1'
 
 const getTodayTopics: any = `${REACT_APP_API_URL}/user/logged/todayTopics`;
 const userLoginUrl: any = `${REACT_APP_API_URL}/user/studentLogin`;
