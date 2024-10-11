@@ -8,7 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const Tab4: React.FC = () => {
-  const { store, saveUserData, loadUserData } = useStorage(); // Destructure store
+  
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showAlert, setShowAlert] = useState<boolean>(false);
@@ -40,24 +40,7 @@ const Tab4: React.FC = () => {
         await AsyncStorage.setItem("mobile", res.data.mobile);
         history.push('/tab1');
         window.location.reload();
-        /*
-        if (store) { // Ensure store is initialized
-          // Save user data
-          
-          await saveUserData("token", res.data.token);
-          await saveUserData("id", res.data.id);
-          await saveUserData("f_name", res.data.f_name);
-          await saveUserData("l_name", res.data.l_name);
-          await saveUserData("user_name", res.data.user_name);
-          await saveUserData("email", res.data.email);
-          await saveUserData("mobile", res.data.mobile);
-          
-          // Load data (optional)
-          
-          history.push('/tab1');
-        } else {
-          throw new Error("data save error");
-        } */
+
       } else {
         setAlertMessage('Invalid username or password');
         setShowAlert(true);
@@ -66,17 +49,7 @@ const Tab4: React.FC = () => {
       setAlertMessage('Invalid username or password');
       setShowAlert(true);
     }
-
-    
   };
-
-  useEffect(()=>{
-    const getUserDetails = async() =>{
-        if (store){
-
-        }
-    }
-  },[store]);
 
   return (
     <IonPage>

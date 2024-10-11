@@ -2,22 +2,21 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonImg, IonButton
    IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonLabel
  } from '@ionic/react';
 import './Tab1.css';
-import BG from '../images/teen_7088431.png';
+
 import CallerImg from '../images/teen_7088447.png'
 import WaitImg from '../images/time-management_15332433.gif';
 import LiveImg from '../images/play_12749751.gif';
 
 import ServerImg from './components/ServerImg';
 
-//import { useStorage } from '../storage/useStorage';
 import { useState, useEffect,useRef } from 'react';
 import Peer from 'peerjs';
 import { call, caretForwardCircle, exitOutline, micOffOutline, micOutline, peopleOutline, personAddOutline, videocamOffOutline, videocamOutline } from 'ionicons/icons';
-import {requestPermissions} from '../services/permissions';
+
 import 'webrtc-adapter';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import {Plugin, WebPlugin} from "@capacitor/core"
+
 
 
 
@@ -32,7 +31,6 @@ const Tab1: React.FC = () => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [socketMsg, setSocketMsg] = useState<JSON | null>(null);
 
-  const [refresher, setRefresher] = useState<boolean>(false);
   
 
   // striming
@@ -93,7 +91,7 @@ const Tab1: React.FC = () => {
 
   const getLocalStream = async () => {
     try {
-      return await navigator.mediaDevices.getUserMedia({ video: isVideoOn, audio: true });
+      return await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
     } catch (error) {
       console.error('Error accessing media devices.', error);
       alert('Could not access your camera and microphone. Please allow access.');
@@ -102,9 +100,17 @@ const Tab1: React.FC = () => {
 
   const connectPeerNetwork = () => {
     const peer = new Peer( {
-     // host: '192.168.8.168', // Replace with your server's IP or domain
-     // port: 9000,                  // The port of your PeerJS server
-     // path: '/'
+      config: {
+        'iceServers': [
+          { 'urls': 'stun:stun.l.google.com:19302' },
+          {
+            'urls': 'turn:159.223.61.88:3478',
+            'username': 'thush',
+            'credential': 'thush'
+          }
+        ],
+      },
+      debug: 2
     });
     // set the peerID
     setPeer(peer);
@@ -220,28 +226,37 @@ const Tab1: React.FC = () => {
   const connectingUser = async () => {
     if (peer) {
       setShowConference(true);
+  
       peer.on('call', async (call) => {
         console.log('Incoming call...');
   
-        // Get the local stream with the current video status
-        const localStream = await getLocalStream()
+        try {
+          // Get the local stream with the current video status
+          const localStream = await getLocalStream();
   
-        if (localStream) {
-          call.answer(localStream);
-
-          if (localVideoRef.current) {
-            localVideoRef.current.srcObject = localStream;
-          }
+          if (localStream) {
+            call.answer(localStream);  // Answer the call with local stream
   
-          // When receiving the remote stream, display it in the remote video element
-          call.on('stream', (remoteStream) => {
-            if (remoteVideoRef.current) {
-              remoteVideoRef.current.srcObject = remoteStream;
+            // Set local stream to local video element
+            if (localVideoRef.current) {
+              localVideoRef.current.srcObject = localStream;
             }
-          });
-          call.on('close',() => {
-            disconnect();
-          })
+  
+            // When receiving the remote stream, display it in the remote video element
+            call.on('stream', (remoteStream) => {
+              console.log('Received remote stream');
+              if (remoteVideoRef.current) {
+                remoteVideoRef.current.srcObject = remoteStream;  // Set remote stream to remote video element
+              }
+            });
+  
+            call.on('close', () => {
+              console.log('Call closed');
+              disconnect();
+            });
+          }
+        } catch (error) {
+          console.error('Error handling the incoming call:', error);
         }
       });
     }
@@ -253,46 +268,48 @@ const Tab1: React.FC = () => {
       alert('No remote peer ID');
       return;
     }
+  
     setShowConference(true);
     console.log('Calling ' + remotePeerId + '...');
   
-    // Get the local stream
-    const localStream = await getLocalStream()
-    if (localStream && peer) {
-      // Display the local stream in the local video element
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = localStream;
-      }
+    try {
+      // Get the local stream
+      const localStream = await getLocalStream();
   
-      // Make the call to the remote peer
-      const call = peer.call(remotePeerId, localStream);
-  
-      // When receiving the remote stream, display it in the remote video element
-      call.on('stream', (remoteStream) => {
-        if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = remoteStream;
+      if (localStream && peer) {
+        // Display the local stream in the local video element
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = localStream;
         }
-      });
   
-      call.on('close', () => {
-        disconnect();
-        console.log('Call ended.');
-      });
+        // Make the call to the remote peer
+        const call = peer.call(remotePeerId, localStream);
+  
+        // When receiving the remote stream, display it in the remote video element
+        call.on('stream', (remoteStream) => {
+          console.log('Received remote stream');
+          if (remoteVideoRef.current) {
+            remoteVideoRef.current.srcObject = remoteStream;  // Set remote stream to remote video element
+          }
+        });
+  
+        call.on('close', () => {
+          console.log('Call ended.');
+          disconnect();
+        });
+      } else {
+        console.error('Failed to get local stream or peer connection is missing.');
+      }
+    } catch (error) {
+      console.error('Error joining the conference:', error);
     }
   };
-
   
 
-  
 
   // Set up the WebSocket connection and send a message on component mount
   useEffect(() => {
     const getusername = async() => {
-      /*
-      if(store){
-        const username = await loadUserData('user_name');
-        setUsername(username);
-      }*/
      setUsername(await AsyncStorage.getItem("user_name"))
      }  
      
@@ -428,7 +445,7 @@ const Tab1: React.FC = () => {
       </IonCardHeader>
 
       <IonCardContent className="video-content">
-        <video ref={localVideoRef} className="video-player" autoPlay  playsInline>
+        <video ref={remoteVideoRef} className="video-player" autoPlay  playsInline>
           
           Your browser does not support the video tag.
         </video>
