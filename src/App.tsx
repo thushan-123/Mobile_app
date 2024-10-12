@@ -1,3 +1,4 @@
+import { useState, useRef } from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import {
   IonApp,
@@ -54,10 +55,41 @@ import '@ionic/react/css/palettes/dark.system.css';
 /* Theme variables */
 import './theme/variables.css';
 import { useEffect } from 'react';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 setupIonicReact();
 
+const ProtectedRoute: React.FC<{ component: React.ComponentType }> = ({
+  component: Component,
+}) => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  // const isAuthenticated = !!AsyncStorage.getItem("token");
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = await AsyncStorage.getItem("token");
+      setIsAuthenticated(!!token);
+    };
+    checkAuth();
+  }, []);
+  if (isAuthenticated === null) {
+    return null; // or add a loading spinner here if needed
+  }
+
+  return isAuthenticated ? <Component /> : <Redirect to="/login" />;
+};
+
 const App: React.FC = () => {
+
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkToken = async () => {
+      const token = await AsyncStorage.getItem("token");
+      setIsAuthenticated(!!token);
+    };
+
+    checkToken();
+  }, []);
+
   useEffect(() => {
     // Force light mode by removing 'dark' class
     
@@ -68,28 +100,47 @@ const App: React.FC = () => {
     document.body.classList.remove('dark');
   }
   }, []);
-  
+  if (isAuthenticated === null) {
+    return null; // or show a loading spinner here
+  }
   return(
     
       <IonApp>
     <IonReactRouter>
       <IonTabs>
         <IonRouterOutlet>
-          <Route exact path="/tab1">
+            <Route
+              exact
+              path="/"
+              // render={() =>
+              //    AsyncStorage.getItem("token") ? (
+              //     <Redirect to="/tab1" />
+              //   ) : (
+              //     <Tab4 />
+              //   )
+              // }
+              render={() =>
+                isAuthenticated ? <Redirect to="/tab1" /> : <Tab4 />
+              }
+            />
+            {/* <Route exact path="/tab1">
             <Tab1 />
-          </Route>
-          <Route exact path="/tab2">
-            <Tab2 />
-          </Route>
-          <Route path="/tab3">
+          </Route> */}
+            <Route path="/tab1" render={() => <ProtectedRoute component={Tab1} />} />
+            <Route path="/tab2" render={() => <ProtectedRoute component={Tab2} />} />
+            <Route path="/tab3" render={() => <ProtectedRoute component={Tab3} />} />
+
+
+            {/* <Route path="/tab3">
             <Tab3 />
-          </Route>
-          <Route exact path="/">
+          </Route> */}
+            {/* <Route exact path="/">
             <Redirect to="/tab1" />
-          </Route>
-          <Route path="/login">
+          </Route> */}
+            {/* <Route path="/login">
             <Tab4 />
-          </Route>
+          </Route> */}
+            <Route path="/login" component={Tab4} />
           <Route path='/updateDetails'>
             <UpdateDetails />
           </Route>

@@ -434,13 +434,13 @@ const Tab1: React.FC = () => {
     {showConference && (
       <IonCard>
       <IonCardHeader>
-        <IonCardTitle className='card-title'>
-          <IonImg src={LiveImg} alt="Conference Image" className="medium-image" />
+              {/* <IonCardTitle className='card-title'>
+                <IonImg src={LiveImg} alt="Conference Image" className="medium-image" />
           <IonLabel className='user-name-live'>
-          
+
              LIVE
           </IonLabel>
-        </IonCardTitle>
+        </IonCardTitle> */}
         <IonCardSubtitle>Meeting</IonCardSubtitle>
       </IonCardHeader>
 
